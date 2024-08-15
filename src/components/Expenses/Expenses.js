@@ -5,7 +5,7 @@ import './Expenses.css';
 import ExpensesFilter from './ExpensesFilter';
 
 function Expenses({items}) {
-  const [year, setYear] = useState('2024')
+  const [year, setYear] = useState('todos')
 
   const filterChangeHandler = (selectedYear) => {
     setYear(selectedYear)
@@ -17,11 +17,17 @@ function Expenses({items}) {
     return expense.date.getFullYear().toString() === year;
   })
 
+  const estilo = 'text-2xl font-bold';
+
   return (
     <Card className="expenses">
       <ExpensesFilter selected={year} onChangeFilter={filterChangeHandler} />
       {filteredExpenses.length === 0 ? (
-        <h3>No se encontraron gastos</h3>
+
+        <h3 className={estilo}>
+          No se encontraron gastos
+        </h3>
+
       ) : (filteredExpenses.map((item) => {
           return (
             <ExpenseItem
