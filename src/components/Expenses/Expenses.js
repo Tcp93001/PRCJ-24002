@@ -3,6 +3,7 @@ import ExpenseItem from './ExpenseItem';
 import Card from '../Card/Card';
 import './Expenses.css';
 import ExpensesFilter from './ExpensesFilter';
+import PropTypes from 'prop-types';
 
 function Expenses({items}) {
   const [year, setYear] = useState('todos')
@@ -41,6 +42,10 @@ function Expenses({items}) {
       )}
     </Card>
   )
+}
+
+Expenses.propTypes = {
+  items: PropTypes.array
 }
 
 export default Expenses;

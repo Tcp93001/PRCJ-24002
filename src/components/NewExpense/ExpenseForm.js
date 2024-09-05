@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
+import {Modal, BackDrop} from '../Modal/Modal';
 import styled from 'styled-components';
 
 const FormControls = styled.div`
@@ -62,12 +64,16 @@ function ExpenseForm({onSaveExpense}) {
   const [isTitleValid, setIsTitleValid] = useState(true);
   const [isAmountValid, setIsAmountValid] = useState(true);
   const [isDateValid, setIsDateValid] = useState(true);
+  const [error, setError] = useState(null);
+  const titleRef = useRef(null);
+  const amountRef = useRef(null);
 
   const submitHandler = (event) => {
     event.preventDefault();
 
     if (!data.title.trim().length) {
       setIsTitleValid(false);
+      titleRef.current.focus();
       return
     }
 
@@ -116,6 +122,17 @@ function ExpenseForm({onSaveExpense}) {
 
   const dateChangeHandler = (event) => {
     setIsDateValid(true);
+    // el camino del error
+    if(new Date(event.target.value) > new Date()) {
+      setIsDateValid(false);
+      setError({
+        title: "Fecha inválida",
+        message: `La fecha no debe ser mayor a ${new Date().toLocaleDateString()}`,
+      })
+      return;
+    }
+
+    //el camino de todo OK
     setData((prevState) => (
       {
         ...prevState,
@@ -123,26 +140,52 @@ function ExpenseForm({onSaveExpense}) {
     }))
   }
 
+  const toggleModal = () => setError(!error);
+
+  const idPortal = document.getElementById('modal');
+
   return (
-    <form onSubmit={submitHandler}>
-      <FormControls>
-        <FormControl invalid={!isTitleValid}>
-          <label>Descripción</label>
-          <input value={data.title} onChange={titleChangeHandler} type="text" />
-        </FormControl>
-        <FormControl invalid={!isAmountValid}>
-          <label>Monto</label>
-          <input value={data.amount} onChange={amountChangeHandler} type="number" min="1" step="1" />
-        </FormControl>
-        <FormControl invalid={!isDateValid}>
-          <label>Fecha</label>
-          <input value={data.date} onChange={dateChangeHandler} type="date" min="2019-01-01" max="2024-12-31" />
-        </FormControl>
-      </FormControls>
-      <FormActions>
-        <Button type="submit">Agregar</Button>
-      </FormActions>
-    </form>
+    <>
+      <form onSubmit={submitHandler}>
+        <FormControls>
+          <FormControl invalid={!isTitleValid}>
+            <label>Descripción</label>
+            <input ref={titleRef} value={data.title} onChange={titleChangeHandler} type="text" />
+          </FormControl>
+          <FormControl invalid={!isAmountValid}>
+            <label>Monto</label>
+            <input ref={amountRef} value={data.amount} onChange={amountChangeHandler} type="number" min="1" step="1" />
+          </FormControl>
+          <FormControl invalid={!isDateValid}>
+            <label>Fecha</label>
+            <input value={data.date} onChange={dateChangeHandler} type="date" min="2019-01-01" max="2024-12-31" />
+          </FormControl>
+        </FormControls>
+        <FormActions>
+          <Button type="submit">Agregar</Button>
+        </FormActions>
+      </form>
+      {
+        error && (
+          createPortal(
+            <Modal
+              title={error.title}
+              message={error.message}
+              onConfirm={toggleModal}
+            />,
+            idPortal
+        ))
+      }
+      {
+        error && (
+          createPortal(
+            <BackDrop
+              onConfirm={toggleModal}
+            />,
+            idPortal
+        ))
+      }
+    </>
   );
 }
 

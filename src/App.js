@@ -10,10 +10,10 @@ function App() {
   }
 
   return (
-    <div style={{padding: '10px'}}>
+    <>
       <NewExpense addExpense={addExpenseHandler} />
       <Expenses items={expenses} />
-    </div>
+    </>
   );
 }
 
